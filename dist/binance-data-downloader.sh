@@ -371,6 +371,26 @@ now() {
 }
 
 #######################################
+# Formats a given date string into a specified format.
+# Globals:
+#   None
+# Arguments:
+#   date (string): Date string
+#   format (string): Desired date format
+# Outputs:
+#   Writes the formatted date to stdout
+# Returns:
+#   0 on success, 1 if the date is invalid
+#######################################
+format_date() {
+  local date=${1:?missing required <date> argument}
+  local format=${2:?missing required <format> argument}
+
+  date -d "$date" +"$format"
+}
+
+
+#######################################
 # Converts a JSON array into newline-delimited JSON (NDJSON).
 # Globals:
 #   None
@@ -606,7 +626,7 @@ symbols() {
     fail "Error: $response"?
   }
 
-  echo "$response" | jq -r '.symbols[].symbol'
+  jq -r '.symbols[].symbol' <<< "$response"
 }
 
 #######################################
@@ -688,8 +708,9 @@ main() {
   local product interval start_time symbols klines
   local format="csv"
   local output_dir="."
-  local end_time=$(today)
+  local end_time=$(now)
   local max_parallel=4 num_jobs=0
+  local start_date end_date
 
   while getopts ":p:i:s:e:f:o:P:h" opt; do
     case "$opt" in
@@ -709,6 +730,9 @@ main() {
   : ${interval:?Missing required <interval>}
   : ${start_time:?Missing required <start_time>}
 
+  start_date=$(format_date "$start_time" "%Y-%m-%d")
+  end_date=$(format_date "$end_time" "%Y-%m-%d")
+
   case "$format" in
     tsv|csv|ndjson) ;;
     *) fail "Error: Invalid format '$format'. Valid formats are: tsv, csv, ndjson." ;;
@@ -722,7 +746,7 @@ main() {
 
   process_symbol() {
     local symbol=$1
-    local filename="${output_dir}/${symbol}_${start_time}_${end_time}.${format}"
+    local filename="${output_dir}/${symbol}_${start_date}_${end_date}.${format}"
     local temp_file=$(mktemp)
 
     trap 'rm -f "$temp_file"' EXIT
