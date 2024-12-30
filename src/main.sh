@@ -2,8 +2,6 @@
 
 . ./../lib/binance.sh
 
-set -eo pipefail
-
 usage() {
   cat <<EOF
 Usage: $0 -p <product> -i <interval> -s <start_time> [-e <end_time>] [-f <format>] [-o <output_dir>]
@@ -42,12 +40,13 @@ main() {
     esac
   done
 
-  : ${product:?Missing required <product>}
-  : ${interval:?Missing required <interval>}
-  : ${start_time:?Missing required <start_time>}
+  : ${product:?Missing required <product> argument}
+  : ${interval:?Missing required <interval> argument}
+  : ${start_time:?Missing required <start_time> argument}
 
   start_date=$(format_date "$start_time" "%Y-%m-%d")
   end_date=$(format_date "$end_time" "%Y-%m-%d")
+  output_dir="${output_dir%/}"
 
   case "$format" in
     tsv|csv|ndjson) ;;
@@ -78,11 +77,11 @@ main() {
 
   for symbol in $symbols; do
     process_symbol "$symbol" &
-    num_jobs=$((num_jobs + 1))
+    ((num_jobs++))
 
     if (( num_jobs >= max_parallel )); then
       wait -n
-      num_jobs=$((num_jobs - 1))
+      ((num_jobs--))
     fi
   done
 
