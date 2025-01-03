@@ -728,12 +728,11 @@ EOF
 }
 
 main() {
-  local product interval start_time symbols klines
+  local product interval start_time symbols klines end_time
   local format="csv"
   local output_dir="."
-  local end_time=$(now)
   local max_parallel=4 num_jobs=0
-  local start_date end_date
+  local start_date
 
   while getopts ":p:i:s:e:f:o:P:h" opt; do
     case "$opt" in
@@ -749,12 +748,12 @@ main() {
     esac
   done
 
-  : ${product:?Missing required <product> argument}
-  : ${interval:?Missing required <interval> argument}
-  : ${start_time:?Missing required <start_time> argument}
+  : "${product:?Missing required <product> argument}"
+  : "${interval:?Missing required <interval> argument}"
+  : "${start_time:?Missing required <start_time> argument}"
 
+  end_time=$(now)
   start_date=$(format_date "$start_time" "%Y-%m-%d")
-  end_date=$(format_date "$end_time" "%Y-%m-%d")
   output_dir="${output_dir%/}"
 
   case "$format" in
@@ -771,10 +770,12 @@ main() {
   process_symbol() {
     local symbol=$1
     local filename="${output_dir}/${symbol}-${interval}-${start_date}.${format}"
-    local temp_file=$(mktemp)
+    local temp_file
 
+    temp_file=$(mktemp)
     trap 'rm -f "$temp_file"' EXIT
 
+    # shellcheck disable=SC2086
     klines "$product" "$symbol" "$interval" "$start_time" "$end_time" | \
       json_to_$format > "$temp_file"
 
