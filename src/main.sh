@@ -61,7 +61,7 @@ main() {
 
   process_symbol() {
     local symbol=$1
-    local filename="${output_dir}/${symbol}_${start_date}_${end_date}.${format}"
+    local filename="${output_dir}/${symbol}-${interval}-${start_date}.${format}"
     local temp_file=$(mktemp)
 
     trap 'rm -f "$temp_file"' EXIT
