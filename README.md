@@ -18,11 +18,11 @@ Options:
   -P    Maximum parallel jobs (default: 4)
   -h    Show this help message
 
-# Download CSV data for all spot symbols since 2019-01-01
+# Download CSV data for all spot symbols since 2019-01-01 (until now)
 $ binance-data-downloader.sh -p spot -i 1d -s 2019-01-01 -f csv -o data/spot/
-data/spot/BTCUSDT_2019-01-01_2024-11-29.csv
-data/spot/ETHUSDT_2019-01-01_2024-11-29.csv
-data/spot/BNBUSDT_2019-01-01_2024-11-29.csv
+data/spot/BTCUSDT-1d-2019-01-01.csv
+data/spot/ETHUSDT-1d-2019-01-01.csv
+data/spot/BNBUSDT-1d-2019-01-01.csv
 ...
 ```
 
