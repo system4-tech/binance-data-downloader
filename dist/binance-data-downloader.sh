@@ -728,11 +728,14 @@ EOF
 }
 
 main() {
-  local product interval start_time symbols klines end_time
+  local product interval start_time end_time symbols klines
   local format="csv"
   local output_dir="."
   local max_parallel=4 num_jobs=0
   local start_date
+  
+  # todo: adjust default end_time based on interval
+  end_time=$(now)
 
   while getopts ":p:i:s:e:f:o:P:h" opt; do
     case "$opt" in
@@ -752,7 +755,6 @@ main() {
   : "${interval:?Missing required <interval> argument}"
   : "${start_time:?Missing required <start_time> argument}"
 
-  end_time=$(now)
   start_date=$(format_date "$start_time" "%Y-%m-%d")
   output_dir="${output_dir%/}"
 
